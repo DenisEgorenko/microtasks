@@ -1,66 +1,118 @@
-import React, {useLayoutEffect, useState} from 'react';
-import logo from './logo.svg';
+import React, {useState} from 'react';
 import './App.css';
-import Header from './site/Header';
-import Body from './site/Body';
-import Footer from './site/Footer';
-import NewComponentTable from './site/NewComponentTable';
-import Button from './Components/Button';
-import {findAllByDisplayValue} from '@testing-library/react';
-import NewComponentMoney from './Components/NewComponent';
+import {Todolist} from './Todolist';
+import {v4} from 'uuid'
 
-
-// const students = [
-//     {id: 1, name: "James", age: 8},
-//     {id: 2, name: "Robert", age: 18},
-//     {id: 3, name: "John", age: 28},
-//     {id: 4, name: "Michael", age: 38},
-//     {id: 5, name: "William", age: 48},
-//     {id: 6, name: "David", age: 58},
-//     {id: 7, name: "Richard", age: 68},
-//     {id: 8, name: "Joseph", age: 78},
-//     {id: 9, name: "Thomas", age: 88},
-//     {id: 10, name: "Charles", age: 98},
-//     {id: 11, name: "Christopher", age: 100},
-// ]
-//
-//
-// const topCars = [
-//     {manufacturer:'BMW', model:'m5cs'},
-//     {manufacturer:'Mercedes', model:'e63s'},
-//     {manufacturer:'Audi', model:'rs6'},
-//     {manufacturer:'Mercedes', model:'e63s'},
-//     {manufacturer:'Audi', model:'rs6'},
-//     {manufacturer:'Mercedes', model:'e63s'},
-//     {manufacturer:'Audi', model:'rs6'}
-// ]
+export type FilterValuesType = 'all' | 'active' | 'completed';
 
 function App() {
 
-    const [money, setMoney] = useState([
-        { banknots: 'Dollars', value: 100, number: ' a1234567890' },
-        { banknots: 'Dollars', value: 50, number: ' z1234567890' },
-        { banknots: 'RUBLS', value: 100, number: ' w1234567890' },
-        { banknots: 'Dollars', value: 100, number: ' e1234567890' },
-        { banknots: 'Dollars', value: 50, number: ' c1234567890' },
-        { banknots: 'RUBLS', value: 100, number: ' r1234567890' },
-        { banknots: 'Dollars', value: 50, number: ' x1234567890' },
-        { banknots: 'RUBLS', value: 50, number: ' v1234567890' },
-    ])
+    // let [tasks, setTasks] = useState([
+    //     {id: v4(), title: "HTML&CSS", isDone: true},
+    //     {id: v4(), title: "JS", isDone: true},
+    //     {id: v4(), title: "ReactJS", isDone: false},
+    //     {id: v4(), title: "Rest API", isDone: false},
+    //     {id: v4(), title: "GraphQL", isDone: false},
+    // ]);
+    // let [filter, setFilter] = useState<FilterValuesType>("all");
 
-
-    type nominalType = 'Dollars' | "RUBLS" | "All"
-
-    const [nominal, setNominal] = useState<nominalType>("All")
-
-    let moneyFiltered = money;
-
-    if(nominal !== "All"){
-        moneyFiltered = money.filter(element => element.banknots === nominal)
+    type todolistsType = {
+        id: string,
+        title: string,
+        filter: FilterValuesType
     }
 
+    let todolistID1 = v4();
+    let todolistID2 = v4();
+
+    let [todolists, setTodolists] = useState<Array<todolistsType>>([
+        {id: todolistID1, title: 'What to learn', filter: 'all'},
+        {id: todolistID2, title: 'What to buy', filter: 'all'},
+    ])
+
+    let [tasks, setTasks] = useState({
+        [todolistID1]: [
+            {id: v4(), title: 'HTML&CSS', isDone: true},
+            {id: v4(), title: 'JS', isDone: true},
+            {id: v4(), title: 'ReactJS', isDone: false},
+            {id: v4(), title: 'Rest API', isDone: false},
+            {id: v4(), title: 'GraphQL', isDone: false},
+        ],
+        [todolistID2]: [
+            {id: v4(), title: 'HTML&CSS2', isDone: true},
+            {id: v4(), title: 'JS2', isDone: true},
+            {id: v4(), title: 'ReactJS2', isDone: false},
+            {id: v4(), title: 'Rest API2', isDone: false},
+            {id: v4(), title: 'GraphQL2', isDone: false},
+        ]
+    });
+
+
+    function removeTaskItem(listId: string, taskId: string) {
+        setTasks({...tasks, [listId]:tasks[listId].filter(t => t.id !== taskId)});
+    }
+
+    function addTaskItem(listId: string, title: string) {
+        setTasks({...tasks, [listId]:[{id: v4(), title: title, isDone: false}, ...tasks[listId]]})
+    }
+
+    function changeItemStatus(listId: string, taskId: string, isDone: boolean) {
+        // let task = tasks[listId].find(t => t.id === taskId)
+        // if (task) {
+        //     task.isDone = isDone;
+        // }
+        // setTasks({...tasks});
+
+        setTasks({...tasks, [listId]: tasks[listId].map(t => t.id === taskId ? {...t, isDone: isDone} : t)})
+    }
+
+    function changeFilterInList(listId: string, value: FilterValuesType) {
+        setTodolists(todolists.map(l => l.id === listId ? {...l, filter:value} : l))
+    }
+
+
     return (
-        <NewComponentMoney moneyFiltered={moneyFiltered} setNominal={setNominal}/>
+        <div className="App">
+
+            {todolists.map(list => {
+
+                // const changeFilter = (value: FilterValuesType) => {
+                //     changeFilterInList(list.id, value)
+                // }
+                //
+                // const removeTask = (taskId: string) => {
+                //     removeTaskItem(list.id, taskId)
+                // }
+                //
+                // const addTask = (title: string) => {
+                //     addTaskItem(list.id, title)
+                // }
+                //
+                // const changeStatus = (taskId: string, isDone: boolean) => {
+                //     changeItemStatus(list.id, taskId, isDone)
+                // }
+
+                let tasksForTodolist = tasks[list.id]
+                if (list.filter === 'active') {
+                    tasksForTodolist = tasks[list.id].filter(t => t.isDone === false);
+                }
+                if (list.filter === 'completed') {
+                    tasksForTodolist = tasks[list.id].filter(t => t.isDone === true);
+                }
+
+                return <Todolist key={list.id}
+                                 listId={list.id}
+                                 title= {list.title}
+                                 tasks={tasksForTodolist}
+                                 removeTask={removeTaskItem}
+                                 changeFilter={changeFilterInList}
+                                 addTask={addTaskItem}
+                                 changeTaskStatus={changeItemStatus}
+                                 filter={list.filter}
+                />
+            })}
+
+        </div>
     );
 }
 
